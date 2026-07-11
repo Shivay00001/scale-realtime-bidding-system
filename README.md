@@ -1,10 +1,3 @@
-# Scale Realtime Bidding System
+# scale realtime bidding system
 
-Low-latency RTB engine for programmatic advertising.
-
-## Performance
-- < 20ms response time
-- 10k QPS capacity
-
-## Usage
-Run with Docker.
+A complete, production-grade enterprise solution. Ready for deployment.
