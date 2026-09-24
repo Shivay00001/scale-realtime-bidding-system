@@ -1,50 +1,37 @@
-# Scale Realtime Bidding System
+# Realtime Bidding System — second-price sealed-bid auctions
 
-An enterprise-grade solution engineered for high performance.
+**What it does:** A real auction engine. Create auctions with a reserve price,
+place bids over WebSocket (or HTTP) with real validation, then close and settle.
+Settlement is **second-price**: the highest bidder wins and pays
+`max(second-highest bid, reserve price)`. Individual bid amounts stay sealed
+until settlement — only bid counts are broadcast live.
 
-![Language](https://img.shields.io/badge/Language-Go-blue)
-![Status](https://img.shields.io/badge/Status-Active-success)
-![License](https://img.shields.io/badge/License-MIT-green)
+**Lifecycle:** `open` → `close` → `settle`. Auctions can also auto-close after
+`duration_seconds`.
 
-## 🚀 Overview
+## Run
 
-Welcome to the **Scale Realtime Bidding System** repository. This project is built to deliver a robust and scalable solution tailored to modern development standards.
+```bash
+pip install -r requirements.txt
+uvicorn main:app --port 8000
+```
 
-## ✨ Features
+## API
 
-- **High Performance:** Optimized for speed and efficiency.
-- **Scalable Architecture:** Designed to grow with your needs.
-- **Clean Codebase:** Follows best practices and industry standards.
-- **Secure by Default:** Engineered with security in mind.
+- `POST /auctions` `{"item","reserve_price","duration_seconds?"}`
+- `WS /ws/auctions/{id}` — send `{"bidder":"ann","amount":120}`
+- `POST /auctions/{id}/bid` — HTTP bid (same validation)
+- `POST /auctions/{id}/close`, `POST /auctions/{id}/settle`, `GET /auctions/{id}`
 
-## 🛠️ Prerequisites
+```bash
+AID=$(curl -s -X POST localhost:8000/auctions -H 'Content-Type: application/json' \
+  -d '{"item":"GPU","reserve_price":100}' | python3 -c "import json,sys;print(json.load(sys.stdin)['id'])")
+curl -s -X POST localhost:8000/auctions/$AID/close
+curl -s -X POST localhost:8000/auctions/$AID/settle
+```
 
-Ensure you have the following installed in your environment before proceeding:
-- Appropriate runtime/compiler for `Go`
-- Standard development tools
+## Tests
 
-## 📦 Installation
-
-Follow standard installation steps for `Go` to set up the project locally:
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/Shivay00001/scale-realtime-bidding-system.git
-   ```
-2. Navigate to the project directory:
-   ```bash
-   cd scale-realtime-bidding-system
-   ```
-3. Install dependencies according to the standard `Go` ecosystem.
-
-## 💻 Usage
-
-Run the project using standard execution commands for `Go`. Ensure all environment variables and configurations are set prior to execution.
-
-## 🤝 Contributing
-
-Contributions, issues, and feature requests are welcome! Feel free to check the issues page.
-
-## 📝 License
-
-This project is licensed under standard terms.
+```bash
+pytest -q   # settlement math, validation, lifecycle, live WebSocket bidding
+```
