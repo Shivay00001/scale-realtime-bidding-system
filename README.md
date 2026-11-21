@@ -1,5 +1,7 @@
 # Realtime Bidding System — second-price sealed-bid auctions
 
+Built by [VisionQuantech](https://visionquantech.com) — AI agents, apps & tools for small businesses.
+
 **What it does:** A real auction engine. Create auctions with a reserve price,
 place bids over WebSocket (or HTTP) with real validation, then close and settle.
 Settlement is **second-price**: the highest bidder wins and pays
